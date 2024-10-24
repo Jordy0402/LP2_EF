@@ -2,41 +2,50 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listar Productos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="header">
-        <h1>Bienvenido, ${nombreUsuario}</h1>
-        <button onclick="location.href='/logout'">Cerrar sesión</button>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center my-3">
+            <h1>Bienvenido, ${nombreUsuario}</h1>
+            <a href="/cerrar_sesion" class="btn btn-danger">Cerrar sesión</a>
+        </div>
+        <div class="mb-3">
+            <a href="/crear_producto" class="btn btn-primary">Agregar Producto</a>
+            <a href="/generar_pdf" class="btn btn-secondary float-right">Generar PDF</a>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre Producto</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Categoría</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <th:block th:each="producto : ${productos}">
+                    <tr>
+                        <td th:text="${producto.id}"></td>
+                        <td th:text="${producto.nombre}"></td>
+                        <td th:text="${producto.precio}"></td>
+                        <td th:text="${producto.stock}"></td>
+                        <td th:text="${producto.categoria}"></td>
+                        <td>
+                            <a th:href="@{/detalle_producto/{id}(id=${producto.id})}" class="btn btn-info">Ver</a>
+                            <a th:href="@{/editar_producto/{id}(id=${producto.id})}" class="btn btn-warning">Editar</a>
+                        </td>
+                    </tr>
+                </th:block>
+            </tbody>
+        </table>
     </div>
-    
-    <button onclick="location.href='/productos/nuevo'">Agregar Producto</button>
-    <button onclick="location.href='/productos/pdf'">Generar PDF</button>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nombre Producto</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Categoría</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="producto : ${productos}">
-                <td th:text="${producto.id}"></td>
-                <td th:text="${producto.nombre}"></td>
-                <td th:text="${producto.precio}"></td>
-                <td th:text="${producto.stock}"></td>
-                <td th:text="${producto.categoria.nombre}"></td>
-                <td>
-                    <button onclick="location.href='/productos/detalle/${producto.id}'">Ver</button>
-                    <button onclick="location.href='/productos/editar/${producto.id}'">Editar</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

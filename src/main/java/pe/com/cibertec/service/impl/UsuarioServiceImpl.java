@@ -18,19 +18,22 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 	@Override
 	public void crearUsuario(UsuarioEntity usuarioEntity, MultipartFile foto) {
-		//1. Guardar la foto
-		String nombreFoto = Utilitarios.guardarImagen(foto);
-		usuarioEntity.setUrl_Imagen(nombreFoto);
-		
-		//2. Extraer el hash del password
-		String passwordHash = Utilitarios.extraerHash(usuarioEntity.getPassword());
-		usuarioEntity.setPassword(passwordHash);
-		
-		//3. guardar en la base de datos
-		usuarioRepository.save(usuarioEntity);
-		
+	    try {
+	        // 1. Guardar la foto
+	        String nombreFoto = Utilitarios.guardarImagen(foto);
+	        usuarioEntity.setUrlImagen(nombreFoto);
+	        
+	        // 2. Extraer el hash del password
+	        String passwordHash = Utilitarios.extraerHash(usuarioEntity.getPassword());
+	        usuarioEntity.setPassword(passwordHash);
+	        
+	        // 3. Guardar en la base de datos
+	        usuarioRepository.save(usuarioEntity);
+	    } catch (Exception e) {
+	        // Manejo de excepciones
+	        throw new RuntimeException("Error al crear el usuario: " + e.getMessage());
+	    }
 	}
-
 	@Override
 	public boolean validarUsuario(UsuarioEntity usuarioFormulario) {
 		//1. Buscar correo en base de datos

@@ -20,25 +20,25 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UsuarioEntity { 
-	@Id
-	@Column(name = "correo", nullable = false, length =60)
-	private String correo;
-	
-	@Column(name = "password", nullable = false, length =60)
-	private String password;
+    @Id
+    @Column(name = "correo", nullable = false, length = 60)
+    private String correo;
     
-	@Column(name = "nombre", nullable = false, length =100)
-	private String nombre;
-	
-	@Column(name = "apellidos", nullable = false, length =60)
-	private String apellidos;
-	
-	@Column(name = "fechaNacimiento", nullable = false, length =60)
-	private Date fechaNacimiento;
-	
-	@Column(name = "fotoPerfil", nullable = false, length =60)
-	private String fotoPerfil;
-	
-	@Column(name = "url_Imagen")
-	private String url_Imagen;
+    @Column(name = "password", nullable = false, length = 60)
+    private String password;
+    
+    @Column(name = "nombre", nullable = false, length = 100)
+    private String nombre;
+    
+    @Column(name = "apellidos", nullable = false, length = 60)
+    private String apellidos;
+    
+    @Column(name = "fecha_nacimiento", nullable = false)
+    private Date fechaNacimiento;
+    
+    @Column(name = "foto_perfil", nullable = false)
+    private String fotoPerfil;
+    
+    @Column(name = "url_imagen")
+    private String urlImagen;  
 }

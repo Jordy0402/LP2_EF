@@ -2,24 +2,32 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle Producto</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="header">
-        <h1>Bienvenido, ${nombreUsuario}</h1>
-        <button onclick="location.href='/logout'">Cerrar sesión</button>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center my-3">
+            <h1>Bienvenido, ${nombreUsuario}</h1>
+            <a href="/cerrar_sesion" class="btn btn-danger">Cerrar sesión</a>
+        </div>
+        <h2>Detalle Producto</h2>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title" th:text="${producto.nombre}"></h5>
+                <p class="card-text">Precio: <span th:text="${producto.precio}"></span></p>
+                <p class="card-text">Stock: <span th:text="${producto.stock}"></span></p>
+                <p class="card-text">Categoría: <span th:text="${producto.categoria.nombre}"></span></p>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between my-3">
+            <a href="/listar_productos" class="btn btn-secondary">Volver a la lista</a>
+            <a th:href="@{/editar_producto/{id}(id=${producto.id})}" class="btn btn-warning">Editar Producto</a>
+        </div>
     </div>
-
-    <h2>Detalle Producto</h2>
-
-    <ul>
-        <li><strong>Nombre:</strong> <span th:text="${producto.nombre}"></span></li>
-        <li><strong>Precio:</strong> <span th:text="${producto.precio}"></span></li>
-        <li><strong>Stock:</strong> <span th:text="${producto.stock}"></span></li>
-        <li><strong>Categoría:</strong> <span th:text="${producto.categoria.nombre}"></span></li>
-    </ul>
-
-    <button onclick="location.href='/productos'">Atrás</button>
-    <button onclick="location.href='/productos/eliminar/${producto.id}'">Eliminar Producto</button>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

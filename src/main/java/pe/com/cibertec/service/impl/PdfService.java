@@ -21,12 +21,12 @@ public class PdfService {
 	
 	public ByteArrayInputStream generarPdf(String templateNombre, Map<String, Object> datos) throws IOException {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		// setear el html con información
+	
 		Context context = new Context();
 		context.setVariables(datos);
-		// construye el html con los datos
+	
 		String html = templateEngine.process(templateNombre, context);
-		//convierte el html en pdf
+
 		HtmlConverter.convertToPdf(new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)), 
 				outputStream);
 		

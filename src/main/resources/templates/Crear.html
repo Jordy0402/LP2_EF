@@ -2,33 +2,46 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Producto</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="header">
-        <h1>Bienvenido, ${nombreUsuario}</h1>
-        <button onclick="location.href='/logout'">Cerrar sesión</button>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center my-3">
+            <h1>Bienvenido, ${nombreUsuario}</h1>
+            <a href="/cerrar_sesion" class="btn btn-danger">Cerrar sesión</a>
+        </div>
+        <h2>Registrar Producto</h2>
+        <form action="/guardar_producto" method="post">
+            <div class="form-group">
+                <label for="nombreProducto">Nombre Producto</label>
+                <input type="text" id="nombreProducto" name="nombre" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="precioProducto">Precio Producto</label>
+                <input type="number" id="precioProducto" name="precio" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="stockProducto">Stock Producto</label>
+                <input type="number" id="stockProducto" name="stock" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="categoria">Seleccione Categoría</label>
+                <select id="categoria" name="categoriaId" class="form-control" required>
+                    <th:block th:each="categoria : ${categorias}">
+                        <option th:value="${categoria.id}" th:text="${categoria.nombre}"></option>
+                    </th:block>
+                </select>
+            </div>
+            <div class="d-flex justify-content-between">
+                <a href="/listar_productos" class="btn btn-secondary">Atrás</a>
+                <button type="submit" class="btn btn-primary">Guardar Producto</button>
+            </div>
+        </form>
     </div>
-
-    <h2>Registrar Producto</h2>
-
-    <form action="/productos/nuevo" method="post">
-        <label>Nombre Producto:</label>
-        <input type="text" name="nombre"><br>
-
-        <label>Precio Producto:</label>
-        <input type="number" name="precio"><br>
-
-        <label>Stock Producto:</label>
-        <input type="number" name="stock"><br>
-
-        <h3>Seleccione Categoría</h3>
-        <select name="categoria.id">
-            <option th:each="categoria : ${categorias}" th:value="${categoria.id}" th:text="${categoria.nombre}"></option>
-        </select><br>
-
-        <button type="submit">Guardar Producto</button>
-        <button onclick="location.href='/productos'">Atrás</button>
-    </form>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

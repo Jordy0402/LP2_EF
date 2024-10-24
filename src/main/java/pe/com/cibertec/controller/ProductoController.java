@@ -2,6 +2,7 @@ package pe.com.cibertec.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,43 +39,74 @@ public class ProductoController {
     @Autowired
     private PdfService pdfService;
 
-    // Mostrar el menú de productos
-    @GetMapping("/menu")
-    public String mostrarMenu(Model model, HttpSession session) {
-        // Verificar si hay una sesión de usuario activa
+    
+    @GetMapping("/listar_productos")
+    public String listarProductos(Model model, HttpSession session) {
+   
+        if (session.getAttribute("usuario") == null) {
+            return "redirect:/login";
+        }
+        
+        
+
+        String correoSesion = session.getAttribute("usuario").toString();
+        UsuarioEntity usuarioEncontrado = usuarioService.buscarUsuarioPorCorreo(correoSesion);
+        model.addAttribute("nombreUsuario", usuarioEncontrado.getNombre());
+        model.addAttribute("foto", usuarioEncontrado.getUrlImagen());
+
+       
+        List<ProductoEntity> listaProductos = productoService.buscarTodosProductos();
+        model.addAttribute("productos", listaProductos);
+
+        return "listar_productos"; 
+    }
+
+
+    
+    @GetMapping("/crear_producto")
+    public String mostrarCrearProducto(Model model, HttpSession session) {
         if (session.getAttribute("usuario") == null) {
             return "redirect:/login";
         }
 
         String correoSesion = session.getAttribute("usuario").toString();
         UsuarioEntity usuarioEncontrado = usuarioService.buscarUsuarioPorCorreo(correoSesion);
-        model.addAttribute("foto", usuarioEncontrado.getUrl_Imagen());
+        model.addAttribute("nombreUsuario", usuarioEncontrado.getNombre());
 
-        // Cargar productos
-        List<ProductoEntity> listaProductos = productoService.buscarTodosProductos();
-        model.addAttribute("productos", listaProductos);
-        return "menu"; // Asegúrate de que "menu.html" exista en tus vistas.
+       
+        List<String> categorias = Arrays.asList("Electrónica", "Ropa", "Alimentos", "Hogar", "Salud");
+        model.addAttribute("categorias", categorias); 
+
+        return "crear_producto"; 
     }
 
-    // Método para agregar un nuevo producto (ej: gestión de inventario)
-    @PostMapping("/agregar_producto")
-    public String agregarProducto(@RequestParam("nombre") String nombre,
-                                  @RequestParam("precio") double precio,
-                                  @RequestParam("cantidad") int cantidad) {
 
-        ProductoEntity nuevoProducto = new ProductoEntity();
-        nuevoProducto.setNombre(nombre);
-        nuevoProducto.setPrecio(precio);
-        nuevoProducto.setCantidad(cantidad);
+    @GetMapping("/editar_producto/{id}")
+    public String editarProducto(@PathVariable Long id, Model model, HttpSession session) {
+        if (session.getAttribute("usuario") == null) {
+            return "redirect:/login";
+        }
 
-        productoService.guardarProducto(nuevoProducto); // Guarda el nuevo producto
-        return "redirect:/menu"; // Después de agregar, redirige al menú
+        String correoSesion = session.getAttribute("usuario").toString();
+        UsuarioEntity usuarioEncontrado = usuarioService.buscarUsuarioPorCorreo(correoSesion);
+        model.addAttribute("nombreUsuario", usuarioEncontrado.getNombre());
+
+       ProductoEntity producto = productoService.buscarProductoPorId(id.intValue()); // Convertir Long a Integer
+
+        model.addAttribute("producto", producto);
+
+       
+        List<String> categorias = Arrays.asList("Electrónica", "Ropa", "Alimentos", "Hogar", "Salud");
+        model.addAttribute("categorias", categorias); 
+
+        return "editar_producto";
     }
 
-    // Generar PDF con el listado de productos (reporte de inventario)
+
+    
     @GetMapping("/generar_pdf")
     public ResponseEntity<InputStreamResource> generarPdf() throws IOException {
-        // Obtener todos los productos para el reporte
+       
         List<ProductoEntity> listaProductos = productoService.buscarTodosProductos();
 
         Map<String, Object> datosPdf = new HashMap<>();
