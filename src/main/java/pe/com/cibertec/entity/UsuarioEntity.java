@@ -1,77 +1,44 @@
 package pe.com.cibertec.entity;
 
+import java.sql.Date;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Table(name = "tb_usuario")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class UsuarioEntity { 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String correo;  
-    private String password;  
-    private String nombres;
-    private String apellidos;
-    private String fechaNacimiento;
-    private String fotoPerfil;
-
+	@Column(name = "correo", nullable = false, length =60)
+	private String correo;
+	
+	@Column(name = "password", nullable = false, length =60)
+	private String password;
     
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getNombres() {
-        return nombres;
-    }
-
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
-    }
-
-    public String getApellidos() {
-        return apellidos;
-    }
-
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
-
-    public String getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(String fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public String getFotoPerfil() {
-        return fotoPerfil;
-    }
-
-    public void setFotoPerfil(String fotoPerfil) {
-        this.fotoPerfil = fotoPerfil;
-    }
+	@Column(name = "nombre", nullable = false, length =100)
+	private String nombre;
+	
+	@Column(name = "apellidos", nullable = false, length =60)
+	private String apellidos;
+	
+	@Column(name = "fechaNacimiento", nullable = false, length =60)
+	private Date fechaNacimiento;
+	
+	@Column(name = "fotoPerfil", nullable = false, length =60)
+	private String fotoPerfil;
+	
+	@Column(name = "url_Imagen")
+	private String url_Imagen;
 }

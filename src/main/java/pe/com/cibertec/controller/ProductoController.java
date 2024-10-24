@@ -1,85 +1,92 @@
 package pe.com.cibertec.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
 import pe.com.cibertec.entity.ProductoEntity;
 import pe.com.cibertec.entity.UsuarioEntity;
-import pe.com.cibertec.repository.ProductoRepository;
+import pe.com.cibertec.service.ProductoService;
+import pe.com.cibertec.service.UsuarioService;
+import pe.com.cibertec.service.impl.PdfService;
 
 @Controller
-@RequestMapping("/productos")
 public class ProductoController {
 
     @Autowired
-    private ProductoRepository productoRepository;
+    private ProductoService productoService;
 
-    // Listar productos
-    @GetMapping
-    public String listarProductos(Model model, HttpSession session) {
-        List<ProductoEntity> productos = productoRepository.findAll();
-        UsuarioEntity usuario = (UsuarioEntity) session.getAttribute("usuarioLogueado");
-        model.addAttribute("nombreUsuario", usuario.getNombres());
-        model.addAttribute("productos", productos);
-        return "listarProductos";  // Página con la tabla de productos
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
+    private PdfService pdfService;
+
+    // Mostrar el menú de productos
+    @GetMapping("/menu")
+    public String mostrarMenu(Model model, HttpSession session) {
+        // Verificar si hay una sesión de usuario activa
+        if (session.getAttribute("usuario") == null) {
+            return "redirect:/login";
+        }
+
+        String correoSesion = session.getAttribute("usuario").toString();
+        UsuarioEntity usuarioEncontrado = usuarioService.buscarUsuarioPorCorreo(correoSesion);
+        model.addAttribute("foto", usuarioEncontrado.getUrl_Imagen());
+
+        // Cargar productos
+        List<ProductoEntity> listaProductos = productoService.buscarTodosProductos();
+        model.addAttribute("productos", listaProductos);
+        return "menu"; // Asegúrate de que "menu.html" exista en tus vistas.
     }
 
-    // Mostrar formulario para crear producto
-    @GetMapping("/nuevo")
-    public String mostrarFormularioCrearProducto(Model model, HttpSession session) {
-        UsuarioEntity usuario = (UsuarioEntity) session.getAttribute("usuarioLogueado");
-        model.addAttribute("nombreUsuario", usuario.getNombres());
-        model.addAttribute("producto", new ProductoEntity());
-        return "crearProducto";
+    // Método para agregar un nuevo producto (ej: gestión de inventario)
+    @PostMapping("/agregar_producto")
+    public String agregarProducto(@RequestParam("nombre") String nombre,
+                                  @RequestParam("precio") double precio,
+                                  @RequestParam("cantidad") int cantidad) {
+
+        ProductoEntity nuevoProducto = new ProductoEntity();
+        nuevoProducto.setNombre(nombre);
+        nuevoProducto.setPrecio(precio);
+        nuevoProducto.setCantidad(cantidad);
+
+        productoService.guardarProducto(nuevoProducto); // Guarda el nuevo producto
+        return "redirect:/menu"; // Después de agregar, redirige al menú
     }
 
-    // Crear nuevo producto
-    @PostMapping("/nuevo")
-    public String crearProducto(ProductoEntity producto) {
-        productoRepository.save(producto);
-        return "redirect:/productos";  // Redirige a la lista de productos
-    }
+    // Generar PDF con el listado de productos (reporte de inventario)
+    @GetMapping("/generar_pdf")
+    public ResponseEntity<InputStreamResource> generarPdf() throws IOException {
+        // Obtener todos los productos para el reporte
+        List<ProductoEntity> listaProductos = productoService.buscarTodosProductos();
 
-    // Mostrar formulario para editar producto
-    @GetMapping("/editar/{id}")
-    public String mostrarFormularioEditarProducto(@PathVariable("id") Long id, Model model, HttpSession session) {
-        ProductoEntity producto = productoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("ID inválido"));
-        UsuarioEntity usuario = (UsuarioEntity) session.getAttribute("usuarioLogueado");
-        model.addAttribute("nombreUsuario", usuario.getNombres());
-        model.addAttribute("producto", producto);
-        return "editarProducto";
-    }
+        Map<String, Object> datosPdf = new HashMap<>();
+        datosPdf.put("productos", listaProductos);
 
-    // Actualizar producto
-    @PostMapping("/editar/{id}")
-    public String actualizarProducto(@PathVariable("id") Long id, ProductoEntity producto) {
-        productoRepository.save(producto);
-        return "redirect:/productos";
-    }
+        ByteArrayInputStream pdfBytes = pdfService.generarPdf("template_pdf", datosPdf); // Usar un template para el PDF
 
-    // Eliminar producto
-    @GetMapping("/eliminar/{id}")
-    public String eliminarProducto(@PathVariable("id") Long id) {
-        ProductoEntity producto = productoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("ID inválido"));
-        productoRepository.delete(producto);
-        return "redirect:/productos";
-    }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=productos.pdf");
 
-    // Generar PDF con productos (implementación básica)
-    @GetMapping("/pdf")
-    public String generarPDF(Model model, HttpSession session) {
-        List<ProductoEntity> productos = productoRepository.findAll();
-        UsuarioEntity usuario = (UsuarioEntity) session.getAttribute("usuarioLogueado");
-        model.addAttribute("nombreUsuario", usuario.getNombres());
-        model.addAttribute("productos", productos);
-        return "pdfTemplate";  // Este template sería el que genere el PDF
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(pdfBytes));
     }
 }

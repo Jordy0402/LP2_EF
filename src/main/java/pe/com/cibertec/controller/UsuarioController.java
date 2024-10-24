@@ -1,43 +1,59 @@
 package pe.com.cibertec.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model; 
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;  // Para el manejo del archivo
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import pe.com.cibertec.entity.UsuarioEntity;
 import pe.com.cibertec.service.UsuarioService;
 
 @Controller
+@RequiredArgsConstructor
 public class UsuarioController {
-    @Autowired
-    private UsuarioService usuarioService;
-
-    @GetMapping("/login")
-    public String login() {
-        return "login";
+    
+    private final UsuarioService usuarioService;
+    
+    @GetMapping("/registrar_usuario")
+    public String mostrarRegistrarUsuario(Model model) {
+        model.addAttribute("usuario", new UsuarioEntity());
+        return "registro"; // Cambiado a "registro" para que coincida con la vista de registro.
     }
-
-    @GetMapping("/register")
-    public String register(Model model) {
-        model.addAttribute("user", new UsuarioEntity());
-        return "register";
-    }
-
-    @PostMapping("/register")
-    public String registerUser(@ModelAttribute UsuarioEntity user, @RequestParam("profilePicture") MultipartFile file) {
-        usuarioService.saveUser(user, file);
-        return "redirect:/login";
-    }
+    
+    @PostMapping("/registrar_usuario")
+    public String registrarUsuario(@ModelAttribute("usuario") UsuarioEntity usuarioFormulario,
+                                   Model model, @RequestParam("foto") MultipartFile foto) {
         
-       // Cerrar sesión
-        @GetMapping("/logout")
-        public String cerrarSesion(HttpSession session) {
-            session.invalidate();  // Cierra la sesión del usuario
-            return "redirect:/login";
-        }
+        usuarioService.crearUsuario(usuarioFormulario, foto);
+        return "redirect:/"; // Redirigir a la página de login después del registro.
     }
+    
+    @GetMapping("/")
+    public String mostrarLogin(Model model) {
+        model.addAttribute("usuario", new UsuarioEntity());
+        return "login";    
+    }
+    
+    @PostMapping("/login")
+    public String login(@ModelAttribute("usuario") UsuarioEntity usuarioFormulario,
+                        Model model, HttpSession session) {
+        boolean validarUsuario = usuarioService.validarUsuario(usuarioFormulario);
+        if(validarUsuario) {
+            session.setAttribute("usuario", usuarioFormulario.getCorreo());
+            return "redirect:/Listar"; // Asegúrate de que esta ruta esté mapeada.
+        }
+        model.addAttribute("loginInvalido", "No existe el usuario");
+        return "login"; // Permite volver a intentar el login si es inválido.
+    }
+    
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
+}

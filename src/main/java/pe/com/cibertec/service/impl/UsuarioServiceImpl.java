@@ -1,61 +1,59 @@
 package pe.com.cibertec.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;  
+import org.springframework.web.multipart.MultipartFile;
 
+import lombok.RequiredArgsConstructor;
 import pe.com.cibertec.entity.UsuarioEntity;
 import pe.com.cibertec.repository.UsuarioRepository;
 import pe.com.cibertec.service.UsuarioService;
+import pe.com.cibertec.utils.Utilitarios;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService {
 
-    @Autowired
-    private UsuarioRepository userRepository;
+	private final UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+	@Override
+	public void crearUsuario(UsuarioEntity usuarioEntity, MultipartFile foto) {
+		//1. Guardar la foto
+		String nombreFoto = Utilitarios.guardarImagen(foto);
+		usuarioEntity.setUrl_Imagen(nombreFoto);
+		
+		//2. Extraer el hash del password
+		String passwordHash = Utilitarios.extraerHash(usuarioEntity.getPassword());
+		usuarioEntity.setPassword(passwordHash);
+		
+		//3. guardar en la base de datos
+		usuarioRepository.save(usuarioEntity);
+		
+	}
 
-    // Directorio donde se almacenarán las imágenes
-    private final String uploadDirectory = "uploads/";
+	@Override
+	public boolean validarUsuario(UsuarioEntity usuarioFormulario) {
+		//1. Buscar correo en base de datos
+			UsuarioEntity usuarioEncontrado = usuarioRepository
+					.findByCorreo(usuarioFormulario.getCorreo());
+		
+		// 2. Correo existe
+			if(usuarioEncontrado == null) {
+				return false;
+			}
+		// 3. Validar si el password del formulario hace match con el hash de la base de datos
+			if(!Utilitarios.checkPassword(usuarioFormulario.getPassword(),
+					usuarioEncontrado.getPassword())) {
+				return false;
+			}
 
-    @Override
-    public void saveUser(UsuarioEntity user, MultipartFile profilePicture) {
-        // Encriptar la contraseña
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+		return true;
+	}
 
-        
-        userRepository.save(user);
+	@Override
+	public UsuarioEntity buscarUsuarioPorCorreo(String correo) {
+		// TODO Auto-generated method stub
+		return usuarioRepository.findByCorreo(correo);
+	}
 
-        
-        if (!profilePicture.isEmpty()) {
-            try {
-                // Generar un nombre único para la imagen usando el ID del usuario
-                String fileName = user.getId() + "_" + profilePicture.getOriginalFilename();
-
-                // Ruta completa del archivo
-                Path filePath = Paths.get(uploadDirectory + fileName);
-
-                // Escribir el archivo en el sistema
-                Files.write(filePath, profilePicture.getBytes());
-
-                // Almacenar la ruta de la imagen en la entidad Usuario
-                user.setFotoPerfil(fileName);  // Asegúrate de que esta línea esté correcta
-
-                // Actualizar el usuario con la ruta de la imagen
-                userRepository.save(user);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                // Aquí podrías agregar más manejo de excepciones si es necesario
-            }
-        }
-    }
 }

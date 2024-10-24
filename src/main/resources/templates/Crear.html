@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Producto</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Bienvenido, ${nombreUsuario}</h1>
+        <button onclick="location.href='/logout'">Cerrar sesión</button>
+    </div>
+
+    <h2>Registrar Producto</h2>
+
+    <form action="/productos/nuevo" method="post">
+        <label>Nombre Producto:</label>
+        <input type="text" name="nombre"><br>
+
+        <label>Precio Producto:</label>
+        <input type="number" name="precio"><br>
+
+        <label>Stock Producto:</label>
+        <input type="number" name="stock"><br>
+
+        <h3>Seleccione Categoría</h3>
+        <select name="categoria.id">
+            <option th:each="categoria : ${categorias}" th:value="${categoria.id}" th:text="${categoria.nombre}"></option>
+        </select><br>
+
+        <button type="submit">Guardar Producto</button>
+        <button onclick="location.href='/productos'">Atrás</button>
+    </form>
+</body>
+</html>

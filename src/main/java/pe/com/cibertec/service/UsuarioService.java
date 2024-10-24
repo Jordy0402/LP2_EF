@@ -1,8 +1,14 @@
 package pe.com.cibertec.service;
 
-import org.springframework.web.multipart.MultipartFile;  
+import org.springframework.web.multipart.MultipartFile;
+import pe.com.cibertec.entity.UsuarioEntity;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import pe.com.cibertec.entity.UsuarioEntity;
 
 public interface UsuarioService {
-    void saveUser(UsuarioEntity user, MultipartFile profilePicture);
+	void crearUsuario(UsuarioEntity usuarioEntity, MultipartFile foto);
+	boolean validarUsuario(UsuarioEntity usuarioEntity);
+	UsuarioEntity buscarUsuarioPorCorreo(String correo);
 }

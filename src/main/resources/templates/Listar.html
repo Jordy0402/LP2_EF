@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Listar Productos</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Bienvenido, ${nombreUsuario}</h1>
+        <button onclick="location.href='/logout'">Cerrar sesión</button>
+    </div>
+    
+    <button onclick="location.href='/productos/nuevo'">Agregar Producto</button>
+    <button onclick="location.href='/productos/pdf'">Generar PDF</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nombre Producto</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Categoría</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="producto : ${productos}">
+                <td th:text="${producto.id}"></td>
+                <td th:text="${producto.nombre}"></td>
+                <td th:text="${producto.precio}"></td>
+                <td th:text="${producto.stock}"></td>
+                <td th:text="${producto.categoria.nombre}"></td>
+                <td>
+                    <button onclick="location.href='/productos/detalle/${producto.id}'">Ver</button>
+                    <button onclick="location.href='/productos/editar/${producto.id}'">Editar</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

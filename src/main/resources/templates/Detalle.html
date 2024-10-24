@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle Producto</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Bienvenido, ${nombreUsuario}</h1>
+        <button onclick="location.href='/logout'">Cerrar sesión</button>
+    </div>
+
+    <h2>Detalle Producto</h2>
+
+    <ul>
+        <li><strong>Nombre:</strong> <span th:text="${producto.nombre}"></span></li>
+        <li><strong>Precio:</strong> <span th:text="${producto.precio}"></span></li>
+        <li><strong>Stock:</strong> <span th:text="${producto.stock}"></span></li>
+        <li><strong>Categoría:</strong> <span th:text="${producto.categoria.nombre}"></span></li>
+    </ul>
+
+    <button onclick="location.href='/productos'">Atrás</button>
+    <button onclick="location.href='/productos/eliminar/${producto.id}'">Eliminar Producto</button>
+</body>
+</html>
